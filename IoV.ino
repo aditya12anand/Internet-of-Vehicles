@@ -1,21 +1,20 @@
-#include "DHT.h"        // including the library of DHT11 temperature and humidity sensor
-#define DHTTYPE DHT11   // DHT 11
+//#include "DHT.h"        // including the library of DHT11 temperature and humidity sensor
+//#define DHTTYPE DHT11   // DHT 11
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
-
+#include <Wire.h>
 #include <SoftwareSerial.h> 
 #include <TinyGPS.h> 
 float lat = 28.5458,lon = 77.1703; // create variable for latitude and longitude object  
 SoftwareSerial gpsSerial(D7,D6);//rx,tx 
 TinyGPS gps; // create gps object 
 
-#define dht_dpin 0
-DHT dht(dht_dpin, DHTTYPE);
+//#define dht_dpin 0
+//DHT dht(dht_dpin, DHTTYPE);
 
-int trigPin = D3;
-int echoPin = D4;
+//int trigPin = D3;
+//int echoPin = D4;
 
-#include <Wire.h>
 
 // MPU6050 Slave Device Address
 const uint8_t MPU6050SlaveAddress = 0x68;
@@ -46,21 +45,22 @@ int16_t AccelX, AccelY, AccelZ, Temperature, GyroX, GyroY, GyroZ;
 
 #define FIREBASE_HOST "minor-project-70169.firebaseio.com"
 #define FIREBASE_AUTH "2x1Gi4tWv53dNo0yKxuMVyslznTpZsqhQR8jALGm"
-#define WIFI_SSID "Rajesh"
-#define WIFI_PASSWORD "8124664004"
+#define WIFI_SSID "*****"
+#define WIFI_PASSWORD "123456789"
 
 void setup(void)
 { 
-  dht.begin();
+  //dht.begin();
   Serial.begin(9600);
 
-pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+//pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+//pinMode(echoPin, INPUT); // Sets the echoPin as an Input
   
 gpsSerial.begin(9600); // connect gps sensor 
 
 Wire.begin(sda, scl);
   MPU6050_Init();
+  Wire.write(0);     // set to zero (wakes up the MPU-6050)
 
 WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
@@ -78,6 +78,7 @@ WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
 }
 void loop() {
+  /*
     float h = dht.readHumidity();
     float t = dht.readTemperature();         
     Serial.print("Current humidity = ");
@@ -90,7 +91,7 @@ void loop() {
     //Firebase.pushFloat("t&h/temperature", t);
     //Firebase.pushFloat("t&h/humidity", h);
 
-
+*/
     while(gpsSerial.available()){ // check for gps data 
   if(gps.encode(gpsSerial.read()))// encode gps data 
   {  
@@ -112,7 +113,7 @@ Serial.println(latitude+";"+longitude);
     //Firebase.pushString("gps/Latitude", latitude);
     //Firebase.pushString("gps/Longiitude", longitude);
 
-
+/*
 digitalWrite(trigPin, LOW);
 delayMicroseconds(2);
 // Sets the trigPin on HIGH state for 10 micro seconds
@@ -125,19 +126,19 @@ float duration = pulseIn(echoPin, HIGH);
 float distance = (duration*0.034)/2 ;
 Firebase.pushFloat("front_us",distance);
 
-
-double Ax, Ay, Az, T, Gx, Gy, Gz;
+*/
+float Ax, Ay, Az, T, Gx, Gy, Gz;
   
   Read_RawValue(MPU6050SlaveAddress, MPU6050_REGISTER_ACCEL_XOUT_H);
   
   //divide each with their sensitivity scale factor
-  Ax = (double)AccelX/AccelScaleFactor;
-  Ay = (double)AccelY/AccelScaleFactor;
-  Az = (double)AccelZ/AccelScaleFactor;
-  T = (double)Temperature/340+36.53; //temperature formula
-  Gx = (double)GyroX/GyroScaleFactor;
-  Gy = (double)GyroY/GyroScaleFactor;
-  Gz = (double)GyroZ/GyroScaleFactor;
+  Ax = (float)AccelX/AccelScaleFactor;
+  Ay = (float)AccelY/AccelScaleFactor;
+  Az = (float)AccelZ/AccelScaleFactor;
+  T = (float)Temperature/340+36.53; //temperature formula
+  Gx = (float)GyroX/GyroScaleFactor;
+  Gy = (float)GyroY/GyroScaleFactor;
+  Gz = (float)GyroZ/GyroScaleFactor;
 
   Serial.print("Ax: "); Serial.print(Ax);
   Serial.print(" Ay: "); Serial.print(Ay);
@@ -150,7 +151,7 @@ double Ax, Ay, Az, T, Gx, Gy, Gz;
    Firebase.pushFloat("A&G/Ax",Ax);
    Firebase.pushFloat("A&G/Ay",Ay);
    Firebase.pushFloat("A&G/Az",Az);
-   Firebase.pushFloat("A&G/T",T);
+   //Firebase.pushFloat("A&G/T",T);
    Firebase.pushFloat("A&G/Gx",Gx);
    Firebase.pushFloat("A&G/Gy",Gy);
    Firebase.pushFloat("A&G/Gz",Gz);
